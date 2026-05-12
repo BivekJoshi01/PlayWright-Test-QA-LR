@@ -2,8 +2,8 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/loginPage.js';
 
-const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL;
-const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD;
+const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL ?? '';
+const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD ?? '';
 
 test.describe('Login flow', () => {
   test('renders the login page', async ({ page }) => {

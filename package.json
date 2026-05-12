@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "env -u GIO_MODULE_DIR -u GTK_PATH -u GTK_EXE_PREFIX -u GDK_PIXBUF_MODULE_FILE -u GDK_PIXBUF_MODULEDIR -u LOCPATH -u GSETTINGS_SCHEMA_DIR -u GTK_IM_MODULE_FILE playwright test",
-    "test:ui": "env -u GIO_MODULE_DIR -u GTK_PATH -u GTK_EXE_PREFIX -u GDK_PIXBUF_MODULE_FILE -u GDK_PIXBUF_MODULEDIR -u LOCPATH -u GSETTINGS_SCHEMA_DIR -u GTK_IM_MODULE_FILE playwright test --ui",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "report": "playwright show-report"
   },
   "keywords": [],

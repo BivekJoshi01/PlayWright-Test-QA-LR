@@ -39,14 +39,38 @@ export class SignupPage {
    *   password: string,
    * }} values
    */
+  /**
+   * Fill the signup form with the provided values. Country defaults to
+   * Australia (preselected by VITE_AUS_COUNTRY_ID), which we leave alone.
+   * @param {{
+   *   firstName: string,
+   *   middleName?: string,
+   *   lastName: string,
+   *   email: string,
+   *   phoneNumber: string,
+   *   password: string,
+   *   confirmPassword?: string,
+   * }} values
+   */
   async fillForm(values) {
-    await this.firstName.fill(values.firstName);
-    if (values.middleName) await this.middleName.fill(values.middleName);
-    await this.lastName.fill(values.lastName);
-    await this.email.fill(values.email);
-    await this.phoneNumber.fill(values.phoneNumber);
-    await this.password.fill(values.password);
-    await this.confirmPassword.fill(values.password);
+    await this.firstName.fill(values.firstName ?? '');
+    if (values.middleName !== undefined) await this.middleName.fill(values.middleName);
+    await this.lastName.fill(values.lastName ?? '');
+    await this.email.fill(values.email ?? '');
+    await this.phoneNumber.fill(values.phoneNumber ?? '');
+    await this.password.fill(values.password ?? '');
+    await this.confirmPassword.fill(
+      values.confirmPassword !== undefined ? values.confirmPassword : values.password ?? ''
+    );
+  }
+
+  async submit(values, { consent = true } = {}) {
+    await this.fillForm(values);
+    if (consent) {
+      await this.acceptConsentAndSubmit();
+    } else {
+      await this.submitButton.click();
+    }
   }
 
   async acceptConsentAndSubmit() {

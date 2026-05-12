@@ -22,6 +22,68 @@ test.describe('Signup flow', () => {
     await expect(signup.submitButton).toBeEnabled();
   });
 
+  test('shows validation error for invalid email format', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    const details = makeSignupFixture();
+    details.email = 'invalid-email';
+    await signup.submit(details);
+
+    const emailError = page.locator('p.MuiFormHelperText-root', {
+      hasText: /(valid|invalid).*email|email.*required|enter.*email/i,
+    });
+    await expect(emailError).toBeVisible();
+    await expect(page.getByText(/sms verification/i)).not.toBeVisible();
+  });
+
+  test('shows validation error for invalid phone format', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    const details = makeSignupFixture();
+    details.phoneNumber = '12345';
+    await signup.submit(details);
+
+    const phoneError = page.locator('p.MuiFormHelperText-root', {
+      hasText: /(valid|invalid).*mobile|mobile number|phone number/i,
+    });
+    await expect(phoneError).toBeVisible();
+    await expect(page.getByText(/sms verification/i)).not.toBeVisible();
+  });
+
+  test('shows validation error when passwords do not match', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    const details = makeSignupFixture();
+    details.confirmPassword = 'Different1!';
+    await signup.submit(details);
+
+    await expect(page.getByText(/passwords must match/i)).toBeVisible();
+    await expect(page.getByText(/sms verification/i)).not.toBeVisible();
+  });
+
+  test('shows required field errors when required fields are missing', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    await signup.submit({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      password: '',
+      confirmPassword: '',
+    });
+
+    const requiredError = page.locator('p.MuiFormHelperText-root', {
+      hasText: /required/i,
+    }).first();
+    await expect(requiredError).toBeVisible();
+    await expect(page.getByText(/sms verification/i)).not.toBeVisible();
+  });
+
   test('submitting valid details opens the OTP modal', async ({ page }) => {
     const signup = new SignupPage(page);
     await signup.goto();
