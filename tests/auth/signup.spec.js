@@ -94,4 +94,54 @@ test.describe('Signup flow', () => {
     // Backend returns success → frontend opens OTP modal (NewSignUpPage:617).
     await expect(page.getByText(/sms verification/i)).toBeVisible({ timeout: 30_000 });
   });
+
+  test('OTP modal shows resend button and input field', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    await signup.fillForm(makeSignupFixture());
+    await signup.acceptConsentAndSubmit();
+
+    await expect(page.getByText(/sms verification/i)).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole('textbox', { name: /otp|verification code/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /resend|send again/i })).toBeVisible();
+  });
+
+  test('invalid OTP shows error message', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    await signup.fillForm(makeSignupFixture());
+    await signup.acceptConsentAndSubmit();
+
+    await expect(page.getByText(/sms verification/i)).toBeVisible({ timeout: 30_000 });
+    const otpInput = page.getByRole('textbox', { name: /otp|verification code/i });
+    await otpInput.fill('000000');
+    await page.getByRole('button', { name: /verify|confirm/i }).click();
+
+    await expect(page.getByText(/invalid|incorrect|wrong.*otp/i)).toBeVisible();
+  });
+
+  test('clicking Sign In link navigates to login page', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    await page.getByRole('link', { name: /sign in|login/i }).click();
+    await expect(page).toHaveURL(/#\/login/);
+    await expect(page.getByRole('heading', { name: /^login$/i })).toBeVisible();
+  });
+
+  test('signup page is accessible via keyboard navigation', async ({ page }) => {
+    const signup = new SignupPage(page);
+    await signup.goto();
+
+    // Tab through form fields
+    await page.keyboard.press('Tab'); // First name
+    await expect(signup.firstName).toBeFocused();
+    await page.keyboard.press('Tab'); // Middle name
+    await expect(signup.middleName).toBeFocused();
+    await page.keyboard.press('Tab'); // Last name
+    await expect(signup.lastName).toBeFocused();
+    // Continue for other fields...
+  });
 });
